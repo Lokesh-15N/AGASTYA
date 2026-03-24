@@ -2,7 +2,7 @@
 SheepOrSleep – FastAPI Backend v2
 """
 from __future__ import annotations
-from fastapi import FastAPI, Query, HTTPException, UploadFile, File
+from fastapi import FastAPI, Query, HTTPException, UploadFile, File, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
@@ -329,8 +329,8 @@ def chat_starters():
 # ── Time Machine API ────────────────────────────────────────────────────────
 @app.get("/time-machine")
 def time_machine(fund_id: str, date: str, amount: float):
-    from engines.behavior_engine import get_master_data
-    df = get_master_data()
+    from engines.behavior_engine import _load_data
+    df = _load_data()
     fund_df = df[df['fund_id'] == fund_id].sort_values('date').set_index('date')
 
     if fund_df.empty:
@@ -381,3 +381,90 @@ async def upload_portfolio(file: UploadFile = File(...)):
         return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process CSV: {str(e)}")
+
+# ── Time Machine API ────────────────────────────────────────────────────────
+@app.get("/time-machine")
+def time_machine(fund_id: str, date: str, amount: float):
+    from engines.behavior_engine import _load_data
+    df = _load_data()
+    fund_df = df[df['fund_id'] == fund_id].sort_values('date').set_index('date')
+
+    if fund_df.empty:
+        raise HTTPException(status_code=404, detail=f"Fund '{fund_id}' not found in master data")
+
+    try:
+        target_date = pd.to_datetime(date)
+        future_dates = fund_df.index[fund_df.index >= target_date]
+        if len(future_dates) == 0:
+            raise HTTPException(status_code=400, detail="Date is beyond available data range")
+
+        closest_date = future_dates[0]
+        start_nav = float(fund_df.loc[closest_date, 'nav'])
+
+        latest_date = fund_df.index[-1]
+        latest_nav = float(fund_df.loc[latest_date, 'nav'])
+
+        units = amount / start_nav
+        current_value = units * latest_nav
+
+        years = max(0.1, (latest_date - closest_date).days / 365.25)
+        cagr = ((current_value / amount) ** (1 / years)) - 1
+        abs_return = ((current_value - amount) / amount) * 100
+
+        return {
+            "start_date": closest_date.strftime("%Y-%m-%d"),
+            "end_date": latest_date.strftime("%Y-%m-%d"),
+            "start_nav": round(start_nav, 2),
+            "latest_nav": round(latest_nav, 2),
+            "invested": round(amount, 2),
+            "current": round(current_value, 2),
+            "abs_return": round(abs_return, 2),
+            "cagr": round(cagr * 100, 2),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ── Live Ticker (WebSocket Demo) ──────────────────────────────────────────────
+@app.websocket("/live-ticker")
+async def websocket_endpoint(websocket: WebSocket):
+    import asyncio
+    import random
+    import json
+
+    await websocket.accept()
+
+    # Starting mock data parameters
+    current_price = 1000.0
+    volatility = 0.005 # normal volatility
+
+    try:
+        while True:
+            # Random walk
+            change = current_price * random.uniform(-volatility, volatility)
+
+            # Chance of a flash crash (Micro-panic)
+            is_panic = False
+            if random.random() < 0.05: # 5% chance every second
+                change = current_price * random.uniform(-0.03, -0.01) # Drop 1% to 3% instantly!
+                volatility = 0.02 # Market gets wilder
+                is_panic = True
+            elif random.random() < 0.1: # recover volatility
+                volatility = 0.005
+
+            current_price += change
+            current_price = max(1.0, current_price)
+
+            payload = {
+                "price": round(current_price, 2),
+                "change": round(change, 2),
+                "is_panic": is_panic,
+                "timestamp": pd.Timestamp.now().isoformat()
+            }
+
+            await websocket.send_text(json.dumps(payload))
+            await asyncio.sleep(1.0) # wait 1 second before next tick
+
+    except Exception as e:
+        print(f"Websocket disconnected: {e}")

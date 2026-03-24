@@ -10,6 +10,7 @@ import Nudges    from './components/Nudges';
 import Chatbot   from './components/Chatbot';
 import UploadPortfolio from './components/UploadPortfolio';
 import TimeMachine from './components/TimeMachine';
+import LiveTicker from './components/LiveTicker';
 
 const NAV_ITEMS = [
   { id: 'overview', icon: '🏠', label: 'Overview' },
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { id: 'herd',     icon: '🐑', label: 'Herd Behavior' },
   { id: 'nudges',   icon: '💡', label: 'Smart Nudges' },
   { id: 'timemachine', icon: '⏳', label: 'Time Machine' },
+  { id: 'ticker',   icon: '⚡', label: 'Live Ticker (HFT)' },
   { id: 'upload',   icon: '📁', label: 'Portfolio Upload' },
   { id: 'chatbot',  icon: '🤖', label: 'AI Advisor' },
 ];
@@ -29,6 +31,7 @@ const PAGE_LABELS = {
   herd:     'Herd Behavior Analysis',
   nudges:   'Smart Behavioral Nudges',
   timemachine: 'Time Machine (What-If)',
+  ticker:   'High-Frequency Flash Crash Detector',
   upload:   'Personal Panic Tax',
   chatbot:  'AI Financial Advisor',
 };
@@ -52,6 +55,7 @@ export default function App() {
       case 'herd':     return <Herd />;
       case 'nudges':   return <Nudges   fundId={fundId} />;
       case 'timemachine': return <TimeMachine fundId={fundId} />;
+      case 'ticker':   return <LiveTicker />;
       case 'upload':   return <UploadPortfolio />;
       case 'chatbot':  return <Chatbot />;
       default:         return null;
