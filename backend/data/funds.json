@@ -1,0 +1,20 @@
+[
+  {
+    "id": "F001",
+    "name": "BlueChip Growth Fund",
+    "category": "Large Cap",
+    "beta": 0.95
+  },
+  {
+    "id": "F002",
+    "name": "Multicap Momentum Fund",
+    "category": "Multi Cap",
+    "beta": 1.15
+  },
+  {
+    "id": "F003",
+    "name": "Mid & Small Cap Booster",
+    "category": "Mid-Small Cap",
+    "beta": 1.35
+  }
+]

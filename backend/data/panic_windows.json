@@ -1,0 +1,20 @@
+[
+  {
+    "name": "IL&FS / NBFC Crisis",
+    "start": "2018-09-20",
+    "end": "2018-11-30",
+    "severity": 0.65
+  },
+  {
+    "name": "COVID-19 Crash",
+    "start": "2020-02-24",
+    "end": "2020-03-31",
+    "severity": 0.92
+  },
+  {
+    "name": "Global Rate-Hike Bear",
+    "start": "2022-01-17",
+    "end": "2022-06-30",
+    "severity": 0.7
+  }
+]
