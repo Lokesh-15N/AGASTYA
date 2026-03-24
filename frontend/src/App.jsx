@@ -8,6 +8,8 @@ import Compare   from './components/Compare';
 import Herd      from './components/Herd';
 import Nudges    from './components/Nudges';
 import Chatbot   from './components/Chatbot';
+import UploadPortfolio from './components/UploadPortfolio';
+import TimeMachine from './components/TimeMachine';
 
 const NAV_ITEMS = [
   { id: 'overview', icon: '🏠', label: 'Overview' },
@@ -15,6 +17,8 @@ const NAV_ITEMS = [
   { id: 'compare',  icon: '⚖️',  label: 'Strategy Compare' },
   { id: 'herd',     icon: '🐑', label: 'Herd Behavior' },
   { id: 'nudges',   icon: '💡', label: 'Smart Nudges' },
+  { id: 'timemachine', icon: '⏳', label: 'Time Machine' },
+  { id: 'upload',   icon: '📁', label: 'Portfolio Upload' },
   { id: 'chatbot',  icon: '🤖', label: 'AI Advisor' },
 ];
 
@@ -24,6 +28,8 @@ const PAGE_LABELS = {
   compare:  'Disciplined vs Panic Strategy',
   herd:     'Herd Behavior Analysis',
   nudges:   'Smart Behavioral Nudges',
+  timemachine: 'Time Machine (What-If)',
+  upload:   'Personal Panic Tax',
   chatbot:  'AI Financial Advisor',
 };
 
@@ -41,10 +47,12 @@ export default function App() {
   const renderPage = () => {
     switch (page) {
       case 'overview': return <Overview fundId={fundId} />;
-      case 'nav':      return <NavChart   fundId={fundId} {...DEFAULT_RANGE} />;
-      case 'compare':  return <Compare    fundId={fundId} {...DEFAULT_RANGE} />;
+      case 'nav':      return <NavChart   fundId={fundId} />;
+      case 'compare':  return <Compare    fundId={fundId} />;
       case 'herd':     return <Herd />;
       case 'nudges':   return <Nudges   fundId={fundId} />;
+      case 'timemachine': return <TimeMachine fundId={fundId} />;
+      case 'upload':   return <UploadPortfolio />;
       case 'chatbot':  return <Chatbot />;
       default:         return null;
     }

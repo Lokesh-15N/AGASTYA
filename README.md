@@ -1,167 +1,119 @@
-# SheepOrSleep 🐑
+# 🐑 SheepOrSleep
+> **A Behavioral Finance Platform for Mutual Fund Investors**
 
-> **Panic Selling & Herd Behavior Detection Platform** for Mutual Fund Investors
+![SheepOrSleep Dashboard](https://images.unsplash.com/photo-1611974789855-9c2a0a223690?q=80&w=2670&auto=format&fit=crop)
 
-SheepOrSleep is a behavioral finance analytics platform that detects panic selling and herd behavior in mutual fund markets, calculates the **Panic Tax** (wealth lost due to emotional selling), and nudges investors to make disciplined decisions.
+SheepOrSleep is an interactive, full-stack analytical platform built to expose and quantify **the true cost of emotional panic-selling** in retail mutual fund investing.
 
----
-
-## 🚀 Live Demo
-
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:5173 |
-| Backend API | http://localhost:8000 |
-| API Docs | http://localhost:8000/docs |
+By analyzing over 22,000 days of real-world historical NAV data across popular Indian mutual funds (like Mirae Asset Large Cap, Parag Parikh Flexi Cap, and UTI Nifty 50), the platform proves mathematically why disciplined investing and smart contrarian behavior out-perform "herd" psychology.
 
 ---
 
-## 📸 Features
+## ✨ Features
 
-| Page | Description |
-|------|-------------|
-| 🏠 **Overview** | Panic alert banner, 6 live KPIs, historical panic windows, smart nudges |
-| 📉 **NAV & Flows** | NAV time-series chart, investor net flow chart, 7-day rolling volatility — all with red-shaded panic zones |
-| ⚖️ **Strategy Compare** | Disciplined SIP vs Panic Seller portfolio growth curves, CAGR bar chart, detected panic events table |
-| 🐑 **Herd Behavior** | Animated herd score gauge (0–100%), period presets for COVID/NBFC/Rate-Hike/Bull Run |
-| 💡 **Smart Nudges** | Personalized behavioral finance nudges + Loss Aversion / Herd Mentality education cards |
+- **💸 The Panic Tax Calculator**
+  A built-in quantitative engine that compares three distinct strategies across major market crashes (2008 GFC, 2011 Euro Crisis, 2020 COVID, etc.):
+  1. **Disciplined Investor:** Never exits.
+  2. **Smart Contrarian 🎯:** Doubles SIP during the height of a crash.
+  3. **Panic Seller:** Sells at the NAV trough due to fear, re-entering 60 days later.
+
+  _The difference between the final portfolio value of the Disciplined strategy and the Panic Seller is what we call the "Panic Tax"_.
+
+- **📈 Real AMFI Mutual Fund Data**
+  Integrates directly with the `mfapi.in` public API to fetch over a decade of historical, up-to-date NAV information dynamically.
+
+- **🤖 AI Financial Advisor (Gemini 2.5 Flash)**
+  A custom-fitted Behavioral Finance AI assistant living straight in the dashboard. Need to understand "Recency Bias", or getting nervous about a recent market dip? Chat directly with the AI, tightly bounded to SEBI-compliant educational boundaries.
+
+- **📉 Herd Behavior Detection**
+  Analyzes sudden mutual fund inflow/outflow divergences during panic events and visualizes them on a custom gauge.
+
+- **💡 Smart Nudges Engine**
+  Combats behavioral biases (like Loss Aversion or Herd Mentality) using personalized interventions triggered dynamically by the current market status of any selected fund.
+
+- **🖌️ Frictionless Dark Mode UI**
+  Crafted using React 19 and Vite with a buttery `lenis` smooth scroll experience and dynamic gradient coloring tailored for financial dashboards.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | Python · FastAPI · Uvicorn |
-| Data | Pandas · NumPy · scikit-learn (RandomForest) |
-| Frontend | React 19 · Vite 8 · Recharts |
-| Visualization | Recharts (AreaChart, LineChart, BarChart, ReferenceArea) |
-| Styling | Pure CSS with dark-mode design system |
+**Frontend:**
+- **Framework:** React 19 + Vite
+- **Visualizations:** Recharts (`<AreaChart>`, `<BarChart>`, custom `<ReferenceArea>` panic zones)
+- **UI & Motion:** Lenis (smooth scroll), Vanilla CSS 3 with extensive variable theming
+- **Client:** Axios HTTP Client
+
+**Backend:**
+- **Framework:** FastAPI / Python 3.13
+- **Data Science:** Pandas & NumPy for heavy quantitative simulations
+- **Machine Learning:** `scikit-learn` `RandomForestClassifier` for modeling complex panic-sell correlations
+- **AI Integration:** Google Generative AI (`gemini-2.5-flash`) via `google-generativeai` package
 
 ---
 
-## ⚡ Quick Start
+## 🚀 Getting Started
 
-### 1. Backend
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [Python 3.13+](https://www.python.org/downloads/)
 
+### 1. Backend Setup
+
+Open a terminal and set up the backend environment:
 ```bash
 cd backend
+python -m venv venv
+venv\Scripts\activate   # (or `source venv/bin/activate` on Mac)
 
-# Install dependencies
+# Install requirements
 pip install -r requirements.txt
+pip install google-generativeai python-dotenv
+```
 
-# Generate synthetic data (2017-2024, 3 funds, 6,261 rows)
-python data/generate_data.py
+Fetch the latest real-time Mutual Fund data:
+```bash
+python data/fetch_real_nav.py
+```
 
-# Start API server
+Set up your Gemini AI Key:
+1. Create a `.env` file inside `backend/` and add your key:
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+Start the FastAPI server:
+```bash
 python -m uvicorn main:app --reload --port 8000
 ```
 
-### 2. Frontend
+### 2. Frontend Setup
 
+Open a new terminal and navigate to the `frontend/` directory:
 ```bash
 cd frontend
+
+# Install UI packages
 npm install
+npm install lenis axios recharts
+
+# Start the dev server
 npm run dev
 ```
 
-Open **http://localhost:5173** in your browser.
+Navigate to `http://localhost:5173` to see SheepOrSleep in action!
 
 ---
 
-## 📡 API Endpoints
+## 🧠 Behavioral Biases Addressed
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| GET | `/funds` | List available funds |
-| GET | `/nav-data` | NAV + flow time-series |
-| GET | `/detect-behavior` | Rule-based + ML panic detection |
-| GET | `/panic-tax` | Simulate panic tax |
-| GET | `/compare-strategy` | Disciplined vs panic seller chart data |
-| GET | `/herd-score` | Herd behavior score |
-| GET | `/nudges` | Personalized behavioral nudges |
-| GET | `/panic-windows` | Historical panic event windows |
-| GET | `/dashboard-summary` | All metrics in one call |
+The core thesis of this app is to mitigate standard behavioral biases found in retail investors:
+1. **Herd Mentality**: _"Everyone is selling, I should sell too."_ (Addressed by Herd analytics)
+2. **Loss Aversion**: _"I can't stomach seeing my portfolio down 20%."_ (Addressed by Smart Nudges & AI Advisor)
+3. **Market Timing Illusion**: _"I will sell now and buy back at the exact bottom."_ (Addressed quantitatively by the Panic Tax curve comparison showing it almost never works).
 
 ---
 
-## 🧠 How It Works
+## ⚖️ Disclaimer
 
-### Panic Tax Calculation
-```
-Panic Tax = Disciplined Final Value − Panic Seller Final Value
-```
-- **Disciplined investor**: Monthly SIP ₹10,000, never exits
-- **Panic seller**: Exits on detected panic signals, re-enters after 60 business days
-
-### Behavior Detection (2-layer)
-1. **Rule-based**: NAV drop from 30d peak > 3% + outflow spike > ₹50 Cr + vol > 1.5%
-2. **ML model**: RandomForest trained on labeled panic/normal periods
-
-### Herd Score
-Average correlation of net outflows across all funds in a date window. High correlation = synchronized exits = herd behavior.
-
----
-
-## 📊 Simulated Data
-
-Synthetic data with realistic panic events:
-
-| Event | Period | Severity |
-|-------|--------|----------|
-| IL&FS / NBFC Crisis | Sep–Nov 2018 | HIGH |
-| COVID-19 Crash | Feb–Mar 2020 | EXTREME |
-| Global Rate-Hike Bear | Jan–Jun 2022 | HIGH |
-
----
-
-## 🗂️ Project Structure
-
-```
-PS-8/
-├── backend/
-│   ├── main.py                    # FastAPI application (9 endpoints)
-│   ├── requirements.txt
-│   ├── data/
-│   │   ├── generate_data.py       # Synthetic data generator
-│   │   ├── master_data.csv        # Generated dataset (gitignored)
-│   │   ├── funds.json
-│   │   └── panic_windows.json
-│   └── engines/
-│       ├── behavior_engine.py     # Panic + herd detection engine
-│       ├── panic_tax.py           # Portfolio simulation engine
-│       └── nudge_engine.py        # Behavioral nudge library
-└── frontend/
-    ├── index.html
-    ├── package.json
-    └── src/
-        ├── App.jsx                # Shell with sidebar + fund selector
-        ├── api.js                 # Axios API client
-        ├── index.css              # Dark-mode design system
-        └── components/
-            ├── Overview.jsx
-            ├── NavChart.jsx
-            ├── Compare.jsx
-            ├── Herd.jsx
-            └── Nudges.jsx
-```
-
----
-
-## 👥 User Personas
-
-- **Retail SIP Investors** – Need nudges to stay disciplined during market dips
-- **Long-term Investors** – Want to understand the cost of panic selling over 5–10 years
-
----
-
-## 🏆 Hackathon Ready
-
-Demo scenario:
-1. Select **Multicap Momentum Fund** (higher beta = bigger swings)
-2. Open **Strategy Compare** → see ₹ wealth gap between disciplined vs panic investor
-3. Switch to **Herd Behavior** → select COVID Crash → see 90% herd score
-4. Open **Smart Nudges** → show personalized behavioral interventions
-
-**Pitch**: Problem → panic selling costs Indian retail investors billions annually → Solution → detect, quantify, and nudge → Impact → disciplined SIP beats market timing by 2–5% CAGR
+The contents of this platform—including outputs generated by the Gemini AI Chatbot, historical return extrapolations, and mutual fund comparisons—are strictly for **educational and hackathon demonstration purposes.** SheepOrSleep is not providing SEBI-registered financial advisory services. Mutual Fund investments are subject to market risks, read all scheme related documents carefully.

@@ -113,10 +113,13 @@ export default function Chatbot() {
       });
       setMessages(prev => [...prev, { role: 'model', parts: res.data.reply }]);
     } catch (e) {
-      setError('Failed to get response. Make sure the backend is running.');
+      const errText = e.response?.data?.detail || '⚠️ I had trouble connecting. Please make sure the backend server is running on port 8000.';
+      setError('Failed to get response.');
       setMessages(prev => [...prev, {
         role: 'model',
-        parts: '⚠️ I had trouble connecting. Please make sure the backend server is running on port 8000.',
+        parts: errText.includes('429')
+          ? '⚠️ **Rate Limit Reached**: Your Gemini API Key has exceeded its free tier quota. Please wait a minute or use a newly generated key.'
+          : errText,
       }]);
     } finally {
       setLoading(false);

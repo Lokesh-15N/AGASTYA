@@ -2,7 +2,7 @@
 SheepOrSleep – FastAPI Backend v2
 """
 from __future__ import annotations
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
@@ -12,6 +12,9 @@ from pathlib import Path
 from engines.behavior_engine import detect_panic_event, get_herd_score, load_model
 from engines.panic_tax import simulate
 from engines.nudge_engine import generate_nudges
+
+import dotenv
+dotenv.load_dotenv()
 
 # ── FastAPI app ────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -250,6 +253,55 @@ def dashboard_summary(fund_id: str = Query("R001")):
     }
 
 
+# ── AI Vision Analysis (Chrome Extension) ──────────────────────────────────
+class VisionRequest(BaseModel):
+    image_data: str # expected base64 like data:image/jpeg;base64,xxxx
+
+@app.post("/analyze-chart")
+def analyze_chart(req: VisionRequest):
+    import google.generativeai as genai
+    import base64
+    import os
+
+    if "base64," not in req.image_data:
+        raise HTTPException(400, "Invalid image format")
+
+    encoded_image = req.image_data.split("base64,")[1]
+    image_bytes = base64.b64decode(encoded_image)
+
+    # Store temporary file for Gemini
+    temp_path = "temp_chart.jpg"
+    with open(temp_path, "wb") as f:
+        f.write(image_bytes)
+
+    try:
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        vision_model = genai.GenerativeModel('gemini-2.5-flash')
+
+        # Upload using genai
+        sample_file = genai.upload_file(path=temp_path, display_name="Stock Chart")
+
+        prompt = (
+            "You are a professional technical analyst and behavioral finance expert. "
+            "Analyze the candlestick chart in this image. "
+            "Identify exactly what chart patterns are visible (e.g., Doji, Hammer, Head and Shoulders, Double Bottom), "
+            "and suggest the likely short-term movement (predictive analysis). "
+            "Finally, give one quick 'Behavioral Nudge' telling retail investors not to panic or get too greedy."
+            "Keep it to bullet points and under 150 words."
+        )
+
+        response = vision_model.generate_content([sample_file, prompt])
+
+        # cleanup
+        genai.delete_file(sample_file.name)
+        os.remove(temp_path)
+
+        return {"analysis": response.text}
+    except Exception as e:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise HTTPException(500, f"Vision AI error: {str(e)}")
+
 # ── AI Chatbot ────────────────────────────────────────────────────────────
 class ChatMessage(BaseModel):
     role: str    # "user" or "model"
@@ -273,3 +325,59 @@ def chat_endpoint(req: ChatRequest):
 def chat_starters():
     from engines.chatbot import STARTER_QUESTIONS
     return {"questions": STARTER_QUESTIONS}
+
+# ── Time Machine API ────────────────────────────────────────────────────────
+@app.get("/time-machine")
+def time_machine(fund_id: str, date: str, amount: float):
+    from engines.behavior_engine import get_master_data
+    df = get_master_data()
+    fund_df = df[df['fund_id'] == fund_id].sort_values('date').set_index('date')
+
+    if fund_df.empty:
+        raise HTTPException(status_code=404, detail="Fund not found")
+
+    try:
+        # Find closest date
+        target_date = pd.to_datetime(date)
+        closest_date = fund_df.index[fund_df.index >= target_date][0]
+        start_nav = fund_df.loc[closest_date, 'nav']
+
+        # Get latest
+        latest_date = fund_df.index[-1]
+        latest_nav = fund_df.loc[latest_date, 'nav']
+
+        units = amount / start_nav
+        current_value = units * latest_nav
+
+        years = max(0.1, (latest_date - closest_date).days / 365.25)
+        cagr = ((current_value / amount) ** (1/years)) - 1
+        abs_return = ((current_value - amount) / amount) * 100
+
+        return {
+            "start_date": closest_date.strftime("%Y-%m-%d"),
+            "end_date": latest_date.strftime("%Y-%m-%d"),
+            "start_nav": round(start_nav, 2),
+            "latest_nav": round(latest_nav, 2),
+            "invested": round(amount, 2),
+            "current": round(current_value, 2),
+            "abs_return": round(abs_return, 2),
+            "cagr": round(cagr * 100, 2)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ── Portfolio Upload ─────────────────────────────────────────────────────────
+@app.post("/upload-portfolio")
+async def upload_portfolio(file: UploadFile = File(...)):
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(status_code=400, detail="Only CSV files are supported")
+
+    content = await file.read()
+    from engines.portfolio_engine import evaluate_portfolio
+    try:
+        res = evaluate_portfolio(content)
+        if "error" in res:
+            raise HTTPException(status_code=400, detail=res["error"])
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process CSV: {str(e)}")

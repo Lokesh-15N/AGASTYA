@@ -11,3 +11,9 @@ export const getHerd     = (start, end)                => api.get('/herd-score',
 export const getNudges   = (fund_id, date)             => api.get('/nudges', { params: { fund_id, date } });
 export const getSummary  = (fund_id)                   => api.get('/dashboard-summary', { params: { fund_id } });
 export const getPanicWindows = ()                      => api.get('/panic-windows');
+export const uploadPortfolio = (file)                  => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/upload-portfolio', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+export const timeMachineCalculate = (fund_id, date, amount) => api.get('/time-machine', { params: { fund_id, date, amount } });

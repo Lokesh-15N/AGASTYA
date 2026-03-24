@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "SheepOrSleep Pattern Analyzer",
+  "version": "1.0",
+  "description": "Uses AI Vision to instantly analyze candlestick patterns and predict market direction on any chart.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["<all_urls>", "http://localhost:8000/*"],
+  "action": {
+    "default_title": "Analyze Chart"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ]
+}
