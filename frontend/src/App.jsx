@@ -7,6 +7,7 @@ import NavChart  from './components/NavChart';
 import Compare   from './components/Compare';
 import Herd      from './components/Herd';
 import Nudges    from './components/Nudges';
+import Chatbot   from './components/Chatbot';
 
 const NAV_ITEMS = [
   { id: 'overview', icon: '🏠', label: 'Overview' },
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
   { id: 'compare',  icon: '⚖️',  label: 'Strategy Compare' },
   { id: 'herd',     icon: '🐑', label: 'Herd Behavior' },
   { id: 'nudges',   icon: '💡', label: 'Smart Nudges' },
+  { id: 'chatbot',  icon: '🤖', label: 'AI Advisor' },
 ];
 
 const PAGE_LABELS = {
@@ -22,13 +24,14 @@ const PAGE_LABELS = {
   compare:  'Disciplined vs Panic Strategy',
   herd:     'Herd Behavior Analysis',
   nudges:   'Smart Behavioral Nudges',
+  chatbot:  'AI Financial Advisor',
 };
 
 const DEFAULT_RANGE = { start: '2017-01-01', end: '2024-12-31' };
 
 export default function App() {
   const [page,     setPage]   = useState('overview');
-  const [fundId,   setFundId] = useState('F001');
+  const [fundId,   setFundId] = useState('R001');
   const [funds,    setFunds]  = useState([]);
 
   useEffect(() => {
@@ -42,6 +45,7 @@ export default function App() {
       case 'compare':  return <Compare    fundId={fundId} {...DEFAULT_RANGE} />;
       case 'herd':     return <Herd />;
       case 'nudges':   return <Nudges   fundId={fundId} />;
+      case 'chatbot':  return <Chatbot />;
       default:         return null;
     }
   };
@@ -76,8 +80,8 @@ export default function App() {
           <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>
             Data Range
           </div>
-          Jan 2017 – Dec 2024
-          <div style={{ marginTop: 6 }}>3 Funds · 6,261 data points</div>
+          Inception → Today
+          <div style={{ marginTop: 6 }}>10 Funds · Real AMFI NAV Data</div>
         </div>
       </aside>
 

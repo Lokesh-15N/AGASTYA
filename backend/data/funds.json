@@ -1,20 +1,44 @@
 [
   {
-    "id": "F001",
-    "name": "BlueChip Growth Fund",
+    "id": "R002",
+    "name": "SBI Blue Chip Fund \u2013 Direct",
     "category": "Large Cap",
-    "beta": 0.95
+    "beta": 1.0
   },
   {
-    "id": "F002",
-    "name": "Multicap Momentum Fund",
-    "category": "Multi Cap",
-    "beta": 1.15
+    "id": "R005",
+    "name": "HDFC Mid-Cap Opportunities \u2013 Direct",
+    "category": "Mid Cap",
+    "beta": 1.0
   },
   {
-    "id": "F003",
-    "name": "Mid & Small Cap Booster",
-    "category": "Mid-Small Cap",
-    "beta": 1.35
+    "id": "R006",
+    "name": "Nippon India Small Cap \u2013 Direct",
+    "category": "Small Cap",
+    "beta": 1.0
+  },
+  {
+    "id": "R007",
+    "name": "SBI Small Cap \u2013 Direct",
+    "category": "Small Cap",
+    "beta": 1.0
+  },
+  {
+    "id": "R008",
+    "name": "Parag Parikh Flexi Cap \u2013 Direct",
+    "category": "Flexi Cap",
+    "beta": 1.0
+  },
+  {
+    "id": "R009",
+    "name": "HDFC ELSS Tax Saver \u2013 Direct",
+    "category": "ELSS",
+    "beta": 1.0
+  },
+  {
+    "id": "R010",
+    "name": "UTI Nifty 50 Index \u2013 Direct",
+    "category": "Index",
+    "beta": 1.0
   }
 ]
